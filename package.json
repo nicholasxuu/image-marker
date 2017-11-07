@@ -3,12 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "eslint": "^4.9.0",
-    "eslint-config-airbnb": "^16.1.0",
+    "babel-jest": "^21.2.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "enzyme": "^3.1.1",
+    "enzyme-adapter-react-16": "^1.0.4",
+    "eslint": "^4.10.0",
+    "eslint-config-airbnb": "^16.0.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.4.0",
-    "react-scripts": "1.0.14"
+    "fetch-mock": "^5.13.1",
+    "jest": "^21.2.1",
+    "react-scripts": "1.0.17",
+    "react-test-renderer": "^16.0.0",
+    "redux-devtools": "^3.4.0",
+    "redux-mock-store": "^1.3.0"
   },
   "dependencies": {
     "es6-promise": "^4.1.1",
@@ -31,7 +41,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "if [ $REACT_APP_ENV ]; then sh -ac '. ./.env.${REACT_APP_ENV}; react-scripts build'; else react-scripts build; fi",
+    "build:local": "REACT_APP_ENV=local npm run build",
+    "build:staging": "REACT_APP_ENV=staging npm run build",
+    "build:production": "REACT_APP_ENV=production npm run build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }
