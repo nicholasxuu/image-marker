@@ -1,3 +1,5 @@
-/* eslint-disable import/prefer-default-export */
-
 export const SAMPLE_ACTION = 'SAMPLE_ACTION';
+
+export const SAMPLE_FETCH_FAILURE = 'SAMPLE_FETCH_FAILURE';
+export const SAMPLE_FETCH_REQUEST = 'SAMPLE_FETCH_REQUEST';
+export const SAMPLE_FETCH_SUCCESS = 'SAMPLE_FETCH_SUCCESS';

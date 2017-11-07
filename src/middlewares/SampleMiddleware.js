@@ -1,5 +1,9 @@
 /* eslint-disable arrow-body-style,no-unused-vars */
-const SampleMiddleware = store => next => (action) => {
+const SampleMiddleware = ({ dispatch, getState }) => next => (action) => {
+  if (typeof action === 'function') {
+    return action(dispatch, getState);
+  }
+
   return next(action);
 };
 
