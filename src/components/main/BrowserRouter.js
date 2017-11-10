@@ -10,7 +10,9 @@ class BrowserRouter extends React.Component {
   render() {
     return (
       <ConnectedRouter history={history}>
-        {this.props.children}
+        <div>
+          {this.props.children}
+        </div>
       </ConnectedRouter>
     );
   }

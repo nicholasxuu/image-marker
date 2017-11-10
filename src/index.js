@@ -14,6 +14,7 @@ ReactDOM.render(
   <Provider store={store}>
     <BrowserRouter>
       <Route exact path="/" component={App} />
+      <Route exact path="/routertest" component={App} />
     </BrowserRouter>
   </Provider>,
   document.getElementById('root'),
