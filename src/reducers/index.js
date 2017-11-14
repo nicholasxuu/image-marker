@@ -3,7 +3,7 @@ import { routerReducer } from 'react-router-redux';
 import SampleReducer from './SampleReducer';
 
 const TotalReducer = combineReducers({
-  SampleReducer,
+  sample: SampleReducer,
   router: routerReducer, // react router redux
 });
 
