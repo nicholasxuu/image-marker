@@ -11,6 +11,12 @@ const SvgUtils = {
     return { x: pageX, y: pageY };
   },
 
+  pagePosToSvgPos(pagePos = { x: 0, y: 0 }, svgTransformMatrix = [1, 0, 0, 1, 0, 0]) {
+    const svgX = (pagePos.x - svgTransformMatrix[4]) / svgTransformMatrix[0];
+    const svgY = (pagePos.y - svgTransformMatrix[5]) / svgTransformMatrix[3];
+    return { x: svgX, y: svgY };
+  },
+
   getTransformMatrix(svgOffsetX, svgOffsetY, svgZoomScale, imageWidth, imageHeight) {
     const matrix = [1, 0, 0, 1, 0, 0];
 

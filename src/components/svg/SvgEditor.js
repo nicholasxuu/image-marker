@@ -3,37 +3,130 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
 import styled from 'styled-components';
+import SvgUtils from '../../utils/SvgUtils';
+import TouchUtils from '../../utils/TouchUtils';
 
 class SvgEditor extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      transformMatrix: [1, 0, 0, 1, 0, 0],
+
       dragging: false, // is dragging
-      panning: false,
-      selectPending: false, // is going to select, but no drag between mouseDown and mouseUp
       panX: null, // for pan movement calculation
       panY: null, // for pan movement calculation
-      transformMatrix: [1, 0, 0, 1, 0, 0],
+
+      selecting: false,
+      selectStartX: 0,
+      selectStartY: 0,
+      selectX: 0,
+      selectY: 0,
+      selectWidth: 0,
+      selectHeight: 0,
     };
 
+    this.svgState = {
+      svgOffsetX: 0,
+      svgOffsetY: 0,
+      svgZoomScale: 1,
+      imageWidth: props.imageWidth,
+      imageHeight: props.imageHeight,
+    };
+
+    /** @type {DOMElement} */
     this.svgBody = null;
+    /** @type {DOMElement} */
     this.svgTransformLayer = null;
   }
 
   onClickStart = (e) => {
+    e.preventDefault();
 
+    if (e.button === 2) {
+      // if right click, dragging
+      this.setState({
+        dragging: true,
+      });
+    } else if (e.button === 0) {
+      // if left click, selecting rectangle
+      const { pageX, pageY } = e;
+
+      const { x, y } = SvgUtils.pagePosToSvgPos(
+        { x: pageX, y: pageY },
+        this.state.transformMatrix,
+      );
+
+      // console.log('select start: ', x, y);
+
+      this.setState({
+        selecting: true,
+        selectStartX: x,
+        selectStartY: y,
+        selectColor: 'red',
+      });
+    }
   };
 
   onClickEnd = (e) => {
+    e.preventDefault();
 
+    this.setState({
+      dragging: false,
+      selecting: false,
+      panX: null, // unset value
+      panY: null, // unset value
+    });
   };
 
   onClickMove = (e) => {
+    e.preventDefault();
 
+    if (this.state.dragging) {
+      const currPointer = TouchUtils.getCursorScreenPoint(e);
+
+      // Take the delta where we are minus where we came from.
+      if (this.state.panX !== null && this.state.panY !== null) {
+        const scaleMultiplier = this.getFinalScaleMultiplier();
+
+        const svgDistanceX = (currPointer.x - this.state.panX) / scaleMultiplier;
+        const svgDistanceY = (currPointer.y - this.state.panY) / scaleMultiplier;
+
+        // Pan using the deltas
+        this.svgPan(svgDistanceX, svgDistanceY);
+      }
+
+      // Update the state
+      this.setState({
+        panX: currPointer.x,
+        panY: currPointer.y,
+      });
+    } else if (this.state.selecting) {
+      const { pageX, pageY } = e;
+
+      const { x, y } = SvgUtils.pagePosToSvgPos(
+        { x: pageX, y: pageY },
+        this.state.transformMatrix,
+      );
+
+      const selectX = Math.min(x, this.state.selectStartX);
+      const selectY = Math.min(y, this.state.selectStartY);
+      const selectWidth = Math.abs(x - this.state.selectStartX);
+      const selectHeight = Math.abs(y - this.state.selectStartY);
+
+      // console.log(x, this.state.selectStartX, selectX, selectWidth);
+      // console.log(y, this.state.selectStartY, selectY, selectHeight);
+
+      this.setState({
+        selectX,
+        selectY,
+        selectWidth,
+        selectHeight,
+      });
+    }
   };
 
-  onResize = (e) => {
+  onResize = () => {
     this.updateViewportMatrix();
   };
 
@@ -45,6 +138,23 @@ class SvgEditor extends React.Component {
     } else if (e.deltaY > wheelDeadZone) {
       this.svgZoom(-0.05);
     }
+  };
+
+
+  /**
+   * Get matrix for svg element vs viewport
+   * @returns {SVGMatrix}
+   */
+  // eslint-disable-next-line arrow-body-style
+  getFinalMatrix = () => {
+    if (this.svgTransformLayer) {
+      return this.svgTransformLayer.getCTM();
+    }
+    return null;
+  };
+
+  getFinalScaleMultiplier = () => {
+    return this.getFinalMatrix().a; // svg box's scale comparing to current viewport size
   };
 
   /**
@@ -72,15 +182,37 @@ class SvgEditor extends React.Component {
     }
   };
 
+  /**
+   * refresh transform matrix based on current svg state.
+   */
+  updateTransformMatrix = () => {
+    const transformMatrix = SvgUtils.getTransformMatrix(
+      this.svgState.svgOffsetX,
+      this.svgState.svgOffsetY,
+      this.svgState.svgZoomScale,
+      this.svgState.imageWidth,
+      this.svgState.imageHeight,
+    );
+
+    this.setState({ transformMatrix });
+  };
+
+  svgPan = (x, y) => {
+    this.svgState.svgOffsetX += x;
+    this.svgState.svgOffsetY += y;
+    this.updateTransformMatrix();
+  };
+
   svgZoom = (delta) => {
-    console.log('zoom: ', delta);
-    // wip
-    const nextTransformMatrix = this.state.transformMatrix;
-    nextTransformMatrix[0] = this.state.transformMatrix[0] * (1 + delta);
-    nextTransformMatrix[3] = this.state.transformMatrix[3] * (1 + delta);
-    this.setState({
-      transformMatrix: nextTransformMatrix,
-    });
+    const currZoomScale = this.svgState.svgZoomScale * (1 + delta);
+    if (currZoomScale > 0.1 && currZoomScale < 10) {
+      this.svgState.svgZoomScale = currZoomScale;
+      this.updateTransformMatrix();
+    }
+  };
+
+  preventDefault = (e) => {
+    e.preventDefault();
   };
 
   render = () => {
@@ -93,6 +225,7 @@ class SvgEditor extends React.Component {
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
 
         <svg
+          onContextMenu={this.preventDefault}
           className="cover-svg"
           viewBox={viewBox}
           preserveAspectRatio="xMidYMid meet"
@@ -123,6 +256,17 @@ class SvgEditor extends React.Component {
               height={this.props.imageHeight}
               width={this.props.imageWidth}
             />
+
+            <rect
+              x={this.state.selectX}
+              y={this.state.selectY}
+              width={this.state.selectWidth}
+              height={this.state.selectHeight}
+              fillOpacity={0}
+              strokeWidth={2}
+              stroke={this.state.selectColor}
+            />
+
           </g>
         </svg>
       </SvgContainer>
