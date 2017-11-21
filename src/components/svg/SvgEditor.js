@@ -33,6 +33,7 @@ class SvgEditor extends React.Component {
       svgZoomScale: 1,
       imageWidth: props.imageWidth,
       imageHeight: props.imageHeight,
+      finalMatrix: null,
     };
 
     /** @type {DOMElement} */
@@ -40,6 +41,10 @@ class SvgEditor extends React.Component {
     /** @type {DOMElement} */
     this.svgTransformLayer = null;
   }
+
+  componentDidMount = () => {
+    this.updateFinalMatrix();
+  };
 
   onClickStart = (e) => {
     e.preventDefault();
@@ -57,7 +62,7 @@ class SvgEditor extends React.Component {
 
       const { x, y } = SvgUtils.pagePosToSvgPos(
         { x: pageX, y: pageY },
-        this.state.transformMatrix,
+        SvgUtils.matrixMultiply(this.svgState.finalMatrix, this.state.transformMatrix),
       );
 
       // console.log('select start: ', x, y);
@@ -88,9 +93,8 @@ class SvgEditor extends React.Component {
   onClickMove = (e) => {
     e.preventDefault();
 
-    console.log('svg click move');
-
     if (this.state.dragging) {
+      console.log('svg click move');
       const currPointer = TouchUtils.getCursorScreenPoint(e);
 
       // Take the delta where we are minus where we came from.
@@ -110,11 +114,12 @@ class SvgEditor extends React.Component {
         panY: currPointer.y,
       });
     } else if (this.state.selecting) {
+      console.log('svg click move');
       const { pageX, pageY } = e;
 
       const { x, y } = SvgUtils.pagePosToSvgPos(
         { x: pageX, y: pageY },
-        this.state.transformMatrix,
+        SvgUtils.matrixMultiply(this.svgState.finalMatrix, this.state.transformMatrix),
       );
 
       const selectX = Math.min(x, this.state.selectStartX);
@@ -135,7 +140,7 @@ class SvgEditor extends React.Component {
   };
 
   onResize = () => {
-    this.updateViewportMatrix();
+    this.updateFinalMatrix();
   };
 
   onWheel = (e) => {
@@ -188,14 +193,8 @@ class SvgEditor extends React.Component {
     return this.getViewportMatrix().a; // svg box's scale comparing to current viewport size
   };
 
-  updateViewportMatrix = () => {
-    // todo: I don't think it should change transform matrix
-    const vm = this.getViewportMatrix();
-    if (vm !== null) {
-      this.setState({
-        transformMatrix: [vm.a, vm.b, vm.c, vm.d, vm.e, vm.f],
-      });
-    }
+  updateFinalMatrix = () => {
+    this.svgState.finalMatrix = this.getFinalMatrix();
   };
 
   /**

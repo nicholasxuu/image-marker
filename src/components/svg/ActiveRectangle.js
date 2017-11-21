@@ -205,6 +205,7 @@ class ActiveRectangle extends React.Component {
     if (!this.state.pending) {
       nameTag = [
         <rect
+          key="tagContainer"
           x={this.state.x}
           y={this.state.y}
           width={100}
@@ -214,6 +215,7 @@ class ActiveRectangle extends React.Component {
           onFocus={this.stopPropagation}
         />,
         <foreignObject
+          key="tagInput"
           x={this.state.x}
           y={this.state.y}
           width={100}

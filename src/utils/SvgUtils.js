@@ -36,13 +36,23 @@ const SvgUtils = {
     return matrix;
   },
 
-  matrixMultiply(immutableMatrix, arrayMatrix) {
+  matrixMultiplyImmutable(immutableMatrix, arrayMatrix) {
     const a = immutableMatrix.get('a') * arrayMatrix[0];
     const b = 0;
     const c = 0;
     const d = immutableMatrix.get('d') * arrayMatrix[3];
     const e = (immutableMatrix.get('a') * arrayMatrix[4]) + immutableMatrix.get('e');
     const f = (immutableMatrix.get('d') * arrayMatrix[5]) + immutableMatrix.get('f');
+    return [a, b, c, d, e, f];
+  },
+
+  matrixMultiply(matrix, arrayMatrix) {
+    const a = matrix.a * arrayMatrix[0];
+    const b = 0;
+    const c = 0;
+    const d = matrix.d * arrayMatrix[3];
+    const e = (matrix.a * arrayMatrix[4]) + matrix.e;
+    const f = (matrix.d * arrayMatrix[5]) + matrix.f;
     return [a, b, c, d, e, f];
   },
 };
