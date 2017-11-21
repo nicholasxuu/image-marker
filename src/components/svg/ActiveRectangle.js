@@ -17,6 +17,7 @@ class ActiveRectangle extends React.Component {
       y: props.y,
       width: props.width,
       height: props.height,
+      pending: props.pending,
 
       dragging: false,
       panX: null,
@@ -30,6 +31,7 @@ class ActiveRectangle extends React.Component {
       y: props.y,
       width: props.width,
       height: props.height,
+      pending: props.pending,
     });
   };
 
@@ -95,8 +97,57 @@ class ActiveRectangle extends React.Component {
     }
   };
 
-  render = () => {
-    const corners = [
+  renderCornerAdjuster = () => {
+    return [
+      <rect
+        key="activeRectTop"
+        x={(this.state.x + (this.state.width / 2)) - 5}
+        y={this.state.y - 5}
+        width={10}
+        height={10}
+        fill="#ffffff"
+        fillOpacity={1}
+        stroke="#000000"
+        strokeWidth={1}
+      />,
+      <rect
+        key="activeRectLeft"
+        x={this.state.x - 5}
+        y={(this.state.y + (this.state.height / 2)) - 5}
+        width={10}
+        height={10}
+        fill="#ffffff"
+        fillOpacity={1}
+        stroke="#000000"
+        strokeWidth={1}
+      />,
+      <rect
+        key="activeRectBottom"
+        x={(this.state.x + (this.state.width / 2)) - 5}
+        y={(this.state.y + this.state.height) - 5}
+        width={10}
+        height={10}
+        fill="#ffffff"
+        fillOpacity={1}
+        stroke="#000000"
+        strokeWidth={1}
+      />,
+      <rect
+        key="activeRectRight"
+        x={(this.state.x + this.state.width) - 5}
+        y={(this.state.y + (this.state.height / 2)) - 5}
+        width={10}
+        height={10}
+        fill="#ffffff"
+        fillOpacity={1}
+        stroke="#000000"
+        strokeWidth={1}
+      />,
+    ];
+  };
+
+  renderEdgeAdjuster = () => {
+    return [
       <rect
         key="activeRectTopLeft"
         x={this.state.x - 5}
@@ -142,6 +193,43 @@ class ActiveRectangle extends React.Component {
         strokeWidth={1}
       />,
     ];
+  };
+
+  stopPropagation = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  render = () => {
+    let nameTag = null;
+    if (!this.state.pending) {
+      nameTag = [
+        <rect
+          x={this.state.x}
+          y={this.state.y}
+          width={100}
+          height={20}
+          fill={this.props.color}
+          onMouseOver={this.stopPropagation}
+          onFocus={this.stopPropagation}
+        />,
+        <foreignObject
+          x={this.state.x}
+          y={this.state.y}
+          width={100}
+          height={20}
+          style={{
+            zIndex: 100,
+            cursor: 'text',
+          }}
+        >
+          <input
+            type="text"
+          />
+        </foreignObject>,
+      ];
+    }
+
     return [
       <rect
         key="activeRect"
@@ -152,19 +240,25 @@ class ActiveRectangle extends React.Component {
         height={this.state.height}
 
         fillOpacity={0}
-        stroke={this.props.stroke}
+        stroke={this.props.color}
         strokeWidth={2}
 
         onMouseDown={this.onClickStart}
         onMouseMove={this.onClickMove}
         onMouseUp={this.onClickEnd}
+
+        style={{
+          cursor: 'move',
+          zIndex: 20,
+        }}
       />,
-      corners,
+      nameTag,
     ];
   }
 }
 ActiveRectangle.defaultProps = {
-  stroke: 'green',
+  color: 'green',
+  pending: false,
 };
 
 ActiveRectangle.propTypes = {
@@ -172,7 +266,8 @@ ActiveRectangle.propTypes = {
   y: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  stroke: PropTypes.string,
+  pending: PropTypes.bool,
+  color: PropTypes.string,
   getFinalScaleMultiplier: PropTypes.func.isRequired,
   setActiveRectangle: PropTypes.func.isRequired,
 };

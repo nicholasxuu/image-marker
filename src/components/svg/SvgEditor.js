@@ -239,7 +239,8 @@ class SvgEditor extends React.Component {
       y={this.state.selectY}
       width={this.state.selectWidth}
       height={this.state.selectHeight}
-      stroke={this.state.selectColor}
+      pending={this.state.selecting}
+      color={this.state.selectColor}
       getFinalScaleMultiplier={this.getFinalScaleMultiplier}
       setActiveRectangle={this.setActiveRectangle}
     />);
