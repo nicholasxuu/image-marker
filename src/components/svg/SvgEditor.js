@@ -5,6 +5,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import styled from 'styled-components';
 import SvgUtils from '../../utils/SvgUtils';
 import TouchUtils from '../../utils/TouchUtils';
+import ActiveRectangle from './ActiveRectangle';
 
 class SvgEditor extends React.Component {
   constructor(props) {
@@ -43,6 +44,8 @@ class SvgEditor extends React.Component {
   onClickStart = (e) => {
     e.preventDefault();
 
+    console.log('svg click start');
+
     if (e.button === 2) {
       // if right click, dragging
       this.setState({
@@ -73,14 +76,19 @@ class SvgEditor extends React.Component {
 
     this.setState({
       dragging: false,
-      selecting: false,
       panX: null, // unset value
       panY: null, // unset value
+
+      selecting: false,
+      selectStartX: 0,
+      selectStartY: 0,
     });
   };
 
   onClickMove = (e) => {
     e.preventDefault();
+
+    console.log('svg click move');
 
     if (this.state.dragging) {
       const currPointer = TouchUtils.getCursorScreenPoint(e);
@@ -140,6 +148,14 @@ class SvgEditor extends React.Component {
     }
   };
 
+  setActiveRectangle = (x, y, width, height) => {
+    this.setState({
+      selectX: x,
+      selectY: y,
+      selectWidth: width,
+      selectHeight: height,
+    });
+  };
 
   /**
    * Get matrix for svg element vs viewport
@@ -218,6 +234,16 @@ class SvgEditor extends React.Component {
   render = () => {
     const viewBox = [0, 0, this.props.imageWidth, this.props.imageHeight].join(' ');
 
+    const activeRect = (<ActiveRectangle
+      x={this.state.selectX}
+      y={this.state.selectY}
+      width={this.state.selectWidth}
+      height={this.state.selectHeight}
+      stroke={this.state.selectColor}
+      getFinalScaleMultiplier={this.getFinalScaleMultiplier}
+      setActiveRectangle={this.setActiveRectangle}
+    />);
+
     return (
       <SvgContainer
         className="svg-editor"
@@ -257,16 +283,7 @@ class SvgEditor extends React.Component {
               width={this.props.imageWidth}
             />
 
-            <rect
-              x={this.state.selectX}
-              y={this.state.selectY}
-              width={this.state.selectWidth}
-              height={this.state.selectHeight}
-              fillOpacity={0}
-              strokeWidth={2}
-              stroke={this.state.selectColor}
-            />
-
+            {activeRect}
           </g>
         </svg>
       </SvgContainer>
@@ -279,7 +296,7 @@ const SvgContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
-  zIndex: 0;
+  z-index: 0;
 `;
 
 SvgEditor.defaultProps = {
