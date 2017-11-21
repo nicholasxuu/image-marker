@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 
 class ImageSampler extends React.Component {
   tellParentImageAttributes = () => {
-    this.item
+    this.props.setImageAttributes({
+      height: this.item.naturalHeight,
+      width: this.item.naturalWidth,
+    });
   };
 
   render = () => {
@@ -12,8 +15,11 @@ class ImageSampler extends React.Component {
       <img
         ref={(item) => { this.item = item; }}
         src={this.props.imageUrl}
-        alt="dummy"
+        alt="dummyImgForAttributeDetection"
         onLoad={this.tellParentImageAttributes}
+        style={{
+          display: 'none',
+        }}
       />
     );
   }
