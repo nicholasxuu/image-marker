@@ -22,7 +22,11 @@ class ActiveRectangle extends React.Component {
       dragging: false,
       panX: null,
       panY: null,
+
+      tagText: '',
     };
+
+    this.tagInput = null;
   }
 
   componentWillReceiveProps = (props) => {
@@ -33,6 +37,12 @@ class ActiveRectangle extends React.Component {
       height: props.height,
       pending: props.pending,
     });
+  };
+
+  componentDidUpdate = (prevProps) => {
+    if (this.props.pending === false && prevProps.pending === true) {
+      this.focusInput();
+    }
   };
 
   onClickStart = (e) => {
@@ -58,6 +68,10 @@ class ActiveRectangle extends React.Component {
       this.state.width,
       this.state.height,
     );
+
+    if (this.tagInput !== null) {
+      this.tagInput.focus();
+    }
 
     this.setState({
       dragging: false,
@@ -97,123 +111,26 @@ class ActiveRectangle extends React.Component {
     }
   };
 
-  renderCornerAdjuster = () => {
-    return [
-      <rect
-        key="activeRectTop"
-        x={(this.state.x + (this.state.width / 2)) - 5}
-        y={this.state.y - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-      <rect
-        key="activeRectLeft"
-        x={this.state.x - 5}
-        y={(this.state.y + (this.state.height / 2)) - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-      <rect
-        key="activeRectBottom"
-        x={(this.state.x + (this.state.width / 2)) - 5}
-        y={(this.state.y + this.state.height) - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-      <rect
-        key="activeRectRight"
-        x={(this.state.x + this.state.width) - 5}
-        y={(this.state.y + (this.state.height / 2)) - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-    ];
-  };
-
-  renderEdgeAdjuster = () => {
-    return [
-      <rect
-        key="activeRectTopLeft"
-        x={this.state.x - 5}
-        y={this.state.y - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-      <rect
-        key="activeRectTopRight"
-        x={(this.state.x + this.state.width) - 5}
-        y={this.state.y - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-      <rect
-        key="activeRectBottomLeft"
-        x={this.state.x - 5}
-        y={(this.state.y + this.state.height) - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-      <rect
-        key="activeRectBottomRight"
-        x={(this.state.x + this.state.width) - 5}
-        y={(this.state.y + this.state.height) - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-    ];
+  focusInput = () => {
+    if (this.tagInput !== null) {
+      this.tagInput.focus();
+    }
   };
 
   stopPropagation = (e) => {
-    e.preventDefault();
     e.stopPropagation();
+  };
+
+  updateTagText = (e) => {
+    this.setState({
+      tagText: e.currentTarget.value,
+    });
   };
 
   render = () => {
     let nameTag = null;
     if (!this.state.pending) {
       nameTag = [
-        <rect
-          key="tagContainer"
-          x={this.state.x}
-          y={this.state.y}
-          width={100}
-          height={20}
-          fill={this.props.color}
-          onMouseOver={this.stopPropagation}
-          onFocus={this.stopPropagation}
-        />,
         <foreignObject
           key="tagInput"
           x={this.state.x}
@@ -222,11 +139,20 @@ class ActiveRectangle extends React.Component {
           height={20}
           style={{
             zIndex: 100,
-            cursor: 'text',
           }}
         >
           <input
             type="text"
+            value={this.state.tagText}
+            onChange={this.updateTagText}
+            ref={(dom) => { this.tagInput = dom; }}
+            style={{
+              width: '100px',
+              height: '20px',
+              zIndex: 101,
+              cursor: 'text',
+            }}
+            onMouseDown={this.stopPropagation}
           />
         </foreignObject>,
       ];
