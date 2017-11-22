@@ -12,25 +12,50 @@ class ActiveRectangle extends React.Component {
   constructor(props) {
     super(props);
 
+    console.log('constructing', props.x, props.y);
+
     this.state = {
       x: props.x,
       y: props.y,
       width: props.width,
       height: props.height,
+      pending: props.pending,
 
       dragging: false,
       panX: null,
       panY: null,
+
+      tagText: props.tagText,
     };
+
+    this.tagInput = null;
   }
 
+  componentDidMount = () => {
+    this.focusInput();
+  };
+
   componentWillReceiveProps = (props) => {
+    console.log('receiving props', props.x, props.y);
+    let { tagText } = this.state;
+    if (props.tagText) {
+      // eslint-disable-next-line prefer-destructuring
+      tagText = props.tagText;
+    }
     this.setState({
+      tagText,
       x: props.x,
       y: props.y,
       width: props.width,
       height: props.height,
+      pending: props.pending,
     });
+  };
+
+  componentDidUpdate = (prevProps) => {
+    if (this.props.pending === false && prevProps.pending === true) {
+      this.focusInput();
+    }
   };
 
   onClickStart = (e) => {
@@ -39,7 +64,7 @@ class ActiveRectangle extends React.Component {
     if (e.button === 0) {
       e.stopPropagation();
 
-      console.log('box click start');
+      // console.log('box click start');
 
       this.setState({
         dragging: true,
@@ -49,19 +74,24 @@ class ActiveRectangle extends React.Component {
 
   onClickEnd = (e) => {
     e.preventDefault();
+    if (this.state.dragging) {
+      e.stopPropagation();
 
-    this.props.setActiveRectangle(
-      this.state.x,
-      this.state.y,
-      this.state.width,
-      this.state.height,
-    );
+      this.props.setActiveRectangle(
+        this.state.x,
+        this.state.y,
+        this.state.width,
+        this.state.height,
+      );
 
-    this.setState({
-      dragging: false,
-      panX: null,
-      panY: null,
-    });
+      this.focusInput();
+
+      this.setState({
+        dragging: false,
+        panX: null,
+        panY: null,
+      });
+    }
   };
 
   onClickMove = (e) => {
@@ -70,7 +100,7 @@ class ActiveRectangle extends React.Component {
     if (this.state.dragging) {
       e.stopPropagation();
 
-      console.log('box click move');
+      // console.log('box click move');
 
       const nextState = {};
       const currPointer = TouchUtils.getCursorScreenPoint(e);
@@ -95,53 +125,143 @@ class ActiveRectangle extends React.Component {
     }
   };
 
+  clearState = () => {
+    this.setState({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      pending: false,
+
+      dragging: false,
+      panX: null,
+      panY: null,
+
+      tagText: '',
+    });
+  };
+
+  focusInput = () => {
+    if (this.tagInput !== null) {
+      this.tagInput.focus();
+      this.tagInput.setSelectionRange(this.state.tagText.length, this.state.tagText.length);
+    }
+  };
+
+  stopPropagation = (e) => {
+    e.stopPropagation();
+  };
+
+  updateTagText = (e) => {
+    this.setState({
+      tagText: e.currentTarget.value,
+    });
+  };
+
+  submitTaggedRectangle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    this.clearState();
+
+    this.props.submitTaggedRectangle(
+      this.state.tagText,
+      this.state.x,
+      this.state.y,
+      this.state.width,
+      this.state.height,
+    );
+  };
+
+  cancelTaggedRectangle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    this.clearState();
+
+    this.props.cancelTaggedRectangle();
+  };
+
+  handleKeyPress = (e) => {
+    switch (e.keyCode) {
+      case 27: // escape
+        this.cancelTaggedRectangle(e);
+        break;
+      case 13: // enter
+        this.submitTaggedRectangle(e);
+        break;
+      default:
+    }
+  };
+
   render = () => {
-    const corners = [
-      <rect
-        key="activeRectTopLeft"
-        x={this.state.x - 5}
-        y={this.state.y - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-      <rect
-        key="activeRectTopRight"
-        x={(this.state.x + this.state.width) - 5}
-        y={this.state.y - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-      <rect
-        key="activeRectBottomLeft"
-        x={this.state.x - 5}
-        y={(this.state.y + this.state.height) - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-      <rect
-        key="activeRectBottomRight"
-        x={(this.state.x + this.state.width) - 5}
-        y={(this.state.y + this.state.height) - 5}
-        width={10}
-        height={10}
-        fill="#ffffff"
-        fillOpacity={1}
-        stroke="#000000"
-        strokeWidth={1}
-      />,
-    ];
+    let nameTag = null;
+    if (!this.state.pending) {
+      nameTag = [
+        <foreignObject
+          key="tagInput"
+          x={this.state.x}
+          y={this.state.y}
+          width={150}
+          height={20}
+          style={{
+            zIndex: 100,
+          }}
+          onMouseDown={this.stopPropagation}
+        >
+          <form
+            style={{
+              width: '150px',
+              height: '20px',
+            }}
+          >
+            <input
+              type="text"
+              value={this.state.tagText}
+              onChange={this.updateTagText}
+              ref={(dom) => { this.tagInput = dom; }}
+              style={{
+                width: '110px',
+                height: '20px',
+                zIndex: 101,
+                cursor: 'text',
+                border: 0,
+                margin: 0,
+                padding: 0,
+              }}
+              onKeyDown={this.handleKeyPress}
+            />
+            <button
+              onClick={this.submitTaggedRectangle}
+              style={{
+                width: '20px',
+                height: '20px',
+                zIndex: 101,
+                border: 0,
+                margin: 0,
+                padding: 0,
+              }}
+            >
+              &#x2713;
+            </button>
+            <button
+              onClick={this.cancelTaggedRectangle}
+              style={{
+                width: '20px',
+                height: '20px',
+                zIndex: 101,
+                border: 0,
+                margin: 0,
+                padding: 0,
+              }}
+            >
+              &times;
+            </button>
+          </form>
+        </foreignObject>,
+      ];
+    }
+
     return [
       <rect
         key="activeRect"
@@ -152,29 +272,40 @@ class ActiveRectangle extends React.Component {
         height={this.state.height}
 
         fillOpacity={0}
-        stroke={this.props.stroke}
+        stroke={this.props.color}
         strokeWidth={2}
 
         onMouseDown={this.onClickStart}
         onMouseMove={this.onClickMove}
         onMouseUp={this.onClickEnd}
+
+        style={{
+          cursor: 'move',
+          zIndex: 20,
+        }}
       />,
-      corners,
+      nameTag,
     ];
   }
 }
 ActiveRectangle.defaultProps = {
-  stroke: 'green',
+  tagText: '',
+  color: 'red',
+  pending: false,
 };
 
 ActiveRectangle.propTypes = {
+  tagText: PropTypes.string,
   x: PropTypes.number.isRequired,
   y: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  stroke: PropTypes.string,
+  pending: PropTypes.bool,
+  color: PropTypes.string,
   getFinalScaleMultiplier: PropTypes.func.isRequired,
   setActiveRectangle: PropTypes.func.isRequired,
+  submitTaggedRectangle: PropTypes.func.isRequired,
+  cancelTaggedRectangle: PropTypes.func.isRequired,
 };
 
 export default ActiveRectangle;
