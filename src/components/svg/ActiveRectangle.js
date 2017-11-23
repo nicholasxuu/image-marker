@@ -29,10 +29,18 @@ class ActiveRectangle extends React.Component {
     this.tagInput = null;
   }
 
+  /**
+   * For when start editing existing one,
+   * focus tag input if it exists.
+   */
   componentDidMount = () => {
     this.focusInput();
   };
 
+  /**
+   * Update state with updated props from parent.
+   * @param {Object} props
+   */
   componentWillReceiveProps = (props) => {
     let { tagText } = this.state;
     if (props.tagText) {
@@ -49,12 +57,20 @@ class ActiveRectangle extends React.Component {
     });
   };
 
+  /**
+   * If stopped resizing, focus on tag input.
+   * @param {Object} prevProps
+   */
   componentDidUpdate = (prevProps) => {
     if (this.props.pending === false && prevProps.pending === true) {
       this.focusInput();
     }
   };
 
+  /**
+   * handle drag start.
+   * @param e
+   */
   onClickStart = (e) => {
     e.preventDefault();
 
@@ -67,6 +83,10 @@ class ActiveRectangle extends React.Component {
     }
   };
 
+  /**
+   * handle drag end.
+   * @param e
+   */
   onClickEnd = (e) => {
     e.preventDefault();
     if (this.state.dragging) {
@@ -89,6 +109,10 @@ class ActiveRectangle extends React.Component {
     }
   };
 
+  /**
+   * handle drag move
+   * @param e
+   */
   onClickMove = (e) => {
     e.preventDefault();
 
@@ -134,6 +158,9 @@ class ActiveRectangle extends React.Component {
     });
   };
 
+  /**
+   * Focus on tag input if it's avaiable.
+   */
   focusInput = () => {
     if (this.tagInput !== null) {
       this.tagInput.focus();
@@ -145,12 +172,21 @@ class ActiveRectangle extends React.Component {
     e.stopPropagation();
   };
 
+  /**
+   * tag input onChange handler.
+   * @param e
+   */
   updateTagText = (e) => {
     this.setState({
       tagText: e.currentTarget.value,
     });
   };
 
+  /**
+   * Submit result.
+   * Send final tagged text to parent.
+   * @param e
+   */
   submitTaggedRectangle = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -166,6 +202,10 @@ class ActiveRectangle extends React.Component {
     );
   };
 
+  /**
+   * Cancel marking.
+   * @param e
+   */
   cancelTaggedRectangle = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -175,6 +215,10 @@ class ActiveRectangle extends React.Component {
     this.props.cancelTaggedRectangle();
   };
 
+  /**
+   * when user typing in tag input, handle hotkey.
+   * @param e
+   */
   handleKeyPress = (e) => {
     switch (e.keyCode) {
       case 27: // escape
@@ -188,9 +232,9 @@ class ActiveRectangle extends React.Component {
   };
 
   render = () => {
-    let nameTag = null;
+    let tagInput = null;
     if (!this.state.pending) {
-      nameTag = [
+      tagInput = [
         <foreignObject
           key="tagInput"
           x={this.state.x}
@@ -214,7 +258,7 @@ class ActiveRectangle extends React.Component {
               onChange={this.updateTagText}
               ref={(dom) => { this.tagInput = dom; }}
               style={{
-                width: '110px',
+                width: '108px',
                 height: '20px',
                 zIndex: 101,
                 cursor: 'text',
@@ -277,7 +321,7 @@ class ActiveRectangle extends React.Component {
           zIndex: 20,
         }}
       />,
-      nameTag,
+      tagInput,
     ];
   }
 }

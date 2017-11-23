@@ -15,6 +15,10 @@ class ExistingRectangle extends React.Component {
     };
   }
 
+  /**
+   * When hover header bar, show edit and remove buttons
+   * @param e
+   */
   handleHover = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -25,12 +29,20 @@ class ExistingRectangle extends React.Component {
     });
   };
 
+  /**
+   * When leave hover header bar, hide edit and remove buttons
+   * @param e
+   */
   handleUnhover = (e) => {
     this.setState({
       showButtons: false,
     });
   };
 
+  /**
+   * When click delete button, tell parent to delete.
+   * @param e
+   */
   handleDelete = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -38,6 +50,10 @@ class ExistingRectangle extends React.Component {
     this.props.removeExistingRectangle(this.props.id);
   };
 
+  /**
+   * When click edit button, tell parent to use active rectangle for it.
+   * @param e
+   */
   handleEdit = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -45,6 +61,12 @@ class ExistingRectangle extends React.Component {
     this.props.editExistingRectangle(this.props.id);
   };
 
+  /**
+   * When click header bar, tell parent to focus it.
+   * Note: will not work if header bar is behind another existing one's body.
+   *     even if the body is transparent. So, can be a bit confusing.
+   * @param e
+   */
   handleFocus = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -139,6 +161,7 @@ class ExistingRectangle extends React.Component {
     ];
   }
 }
+
 ExistingRectangle.defaultProps = {
   color: 'green',
 };
