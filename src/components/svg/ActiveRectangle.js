@@ -35,6 +35,9 @@ class ActiveRectangle extends React.Component {
    */
   componentDidMount = () => {
     this.focusInput();
+
+    // eslint-disable-next-line no-undef
+    document.addEventListener('keydown', this.handleKeyPress, true);
   };
 
   /**
@@ -65,6 +68,11 @@ class ActiveRectangle extends React.Component {
     if (this.props.pending === false && prevProps.pending === true) {
       this.focusInput();
     }
+  };
+
+  componentWillUnmount = () => {
+    // eslint-disable-next-line no-undef
+    document.removeEventListener('keydown', this.handleKeyPress, true);
   };
 
   /**
@@ -191,8 +199,6 @@ class ActiveRectangle extends React.Component {
     e.preventDefault();
     e.stopPropagation();
 
-    this.clearState();
-
     this.props.submitTaggedRectangle(
       this.state.tagText,
       this.state.x,
@@ -200,6 +206,8 @@ class ActiveRectangle extends React.Component {
       this.state.width,
       this.state.height,
     );
+
+    this.clearState();
   };
 
   /**
@@ -222,9 +230,11 @@ class ActiveRectangle extends React.Component {
   handleKeyPress = (e) => {
     switch (e.keyCode) {
       case 27: // escape
+        e.preventDefault();
         this.cancelTaggedRectangle(e);
         break;
       case 13: // enter
+        e.preventDefault();
         this.submitTaggedRectangle(e);
         break;
       default:
@@ -266,7 +276,6 @@ class ActiveRectangle extends React.Component {
                 margin: 0,
                 padding: 0,
               }}
-              onKeyDown={this.handleKeyPress}
             />
             <button
               onClick={this.submitTaggedRectangle}

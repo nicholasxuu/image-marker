@@ -1,6 +1,6 @@
-import Immutable from 'immutable';
-import reducer from '../MarkedResultReducer';
-import * as types from '../../constants/ActionTypes';
+// import Immutable from 'immutable';
+// import reducer from '../MarkedResultReducer';
+// import * as types from '../../constants/ActionTypes';
 //
 // describe('sample reducer test', () => {
 //   it('should return the initial state', () => {

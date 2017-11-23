@@ -52,6 +52,14 @@ class SvgEditor extends React.Component {
 
   componentDidMount = () => {
     this.updateFinalMatrix();
+
+    // eslint-disable-next-line no-undef
+    document.addEventListener('keydown', this.handleKeyPress, true);
+  };
+
+  componentWillUnmount = () => {
+    // eslint-disable-next-line no-undef
+    document.removeEventListener('keydown', this.handleKeyPress, true);
   };
 
   onClickStart = (e) => {
@@ -317,6 +325,18 @@ class SvgEditor extends React.Component {
     });
   };
 
+  handleKeyPress = (e) => {
+    if (e.keyCode === 83 && e.ctrlKey) {
+      e.preventDefault(); // prevent save page action by browser
+
+      // ctrl+s for save
+      this.props.saveMarkedResult(this.props.imageUrl, this.state.existingSelectionList);
+
+      return false;
+    }
+    return true;
+  };
+
   render = () => {
     const viewBox = [0, 0, this.props.imageWidth, this.props.imageHeight].join(' ');
 
@@ -417,6 +437,7 @@ SvgEditor.propTypes = {
   imageUrl: PropTypes.string.isRequired,
   imageHeight: PropTypes.number.isRequired,
   imageWidth: PropTypes.number.isRequired,
+  saveMarkedResult: PropTypes.func.isRequired,
 };
 
 export default SvgEditor;

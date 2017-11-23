@@ -2,7 +2,7 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import ImageMarker from '../components/main/ImageMarker';
-import { saveMarkedResult } from '../actions/SampleApiActions';
+import { saveMarkedResult } from '../actions/Api';
 
 const mapStateToProps = state => ({
   imageUrl: '/sample/test.jpg',

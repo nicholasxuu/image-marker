@@ -19,7 +19,9 @@ export const saveMarkedResultSuccess = body => ({
   body,
 });
 
-export const saveMarkedResult = () => (dispatch) => {
+export const saveMarkedResult = (imageUrl, markedItemList) => (dispatch) => {
+  console.log(imageUrl, markedItemList);
+
   dispatch(saveMarkedResultRequest());
   return fetch(`${process.env.REACT_APP_SERVER_ADDR}/save`)
     .then((response) => {
