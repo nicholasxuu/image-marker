@@ -1,9 +1,9 @@
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
-import SampleReducer from './SampleReducer';
+import MarkedResultReducer from './MarkedResultReducer';
 
 const TotalReducer = combineReducers({
-  sample: SampleReducer,
+  markedResult: MarkedResultReducer,
   router: routerReducer, // react router redux
 });
 

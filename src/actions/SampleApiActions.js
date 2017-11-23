@@ -1,32 +1,61 @@
-import 'isomorphic-fetch'; // use this so fetchMock works.
-
+import 'isomorphic-fetch';
 import {
-  SAMPLE_FETCH_FAILURE, SAMPLE_FETCH_REQUEST, SAMPLE_FETCH_SUCCESS,
+  LOAD_MARKED_RESULT_FAILURE, LOAD_MARKED_RESULT_REQUEST, LOAD_MARKED_RESULT_SUCCESS,
+  SAVE_MARKED_RESULT_FAILURE, SAVE_MARKED_RESULT_REQUEST, SAVE_MARKED_RESULT_SUCCESS,
 } from '../constants/ActionTypes';
 
-export const sampleFetchRequest = () => ({
-  type: SAMPLE_FETCH_REQUEST,
+
+export const saveMarkedResultRequest = () => ({
+  type: SAVE_MARKED_RESULT_REQUEST,
 });
 
-export const sampleFetchFailure = error => ({
-  type: SAMPLE_FETCH_FAILURE,
+export const saveMarkedResultFailure = error => ({
+  type: SAVE_MARKED_RESULT_FAILURE,
   error,
 });
 
-export const sampleFetchSuccess = body => ({
-  type: SAMPLE_FETCH_SUCCESS,
+export const saveMarkedResultSuccess = body => ({
+  type: SAVE_MARKED_RESULT_SUCCESS,
   body,
 });
 
-export const sampleFetch = () => (dispatch) => {
-  dispatch(sampleFetchRequest());
-  return fetch(`${process.env.REACT_APP_SERVER_ADDR}/test`)
+export const saveMarkedResult = () => (dispatch) => {
+  dispatch(saveMarkedResultRequest());
+  return fetch(`${process.env.REACT_APP_SERVER_ADDR}/save`)
     .then((response) => {
       if (response.ok) {
         return response.json();
       }
       return response.json().then((err) => { throw err; });
     })
-    .then(json => dispatch(sampleFetchSuccess(json)))
-    .catch(ex => dispatch(sampleFetchFailure(ex)));
+    .then(json => dispatch(saveMarkedResultSuccess(json)))
+    .catch(ex => dispatch(saveMarkedResultFailure(ex)));
+};
+
+
+export const loadMarkedResultRequest = () => ({
+  type: LOAD_MARKED_RESULT_REQUEST,
+});
+
+export const loadMarkedResultFailure = error => ({
+  type: LOAD_MARKED_RESULT_FAILURE,
+  error,
+});
+
+export const loadMarkedResultSuccess = body => ({
+  type: LOAD_MARKED_RESULT_SUCCESS,
+  body,
+});
+
+export const loadMarkedResult = () => (dispatch) => {
+  dispatch(loadMarkedResultRequest());
+  return fetch(`${process.env.REACT_APP_SERVER_ADDR}/load`)
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      }
+      return response.json().then((err) => { throw err; });
+    })
+    .then(json => dispatch(loadMarkedResultSuccess(json)))
+    .catch(ex => dispatch(loadMarkedResultFailure(ex)));
 };

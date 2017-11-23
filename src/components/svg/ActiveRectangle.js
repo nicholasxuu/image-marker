@@ -12,8 +12,6 @@ class ActiveRectangle extends React.Component {
   constructor(props) {
     super(props);
 
-    console.log('constructing', props.x, props.y);
-
     this.state = {
       x: props.x,
       y: props.y,
@@ -36,7 +34,6 @@ class ActiveRectangle extends React.Component {
   };
 
   componentWillReceiveProps = (props) => {
-    console.log('receiving props', props.x, props.y);
     let { tagText } = this.state;
     if (props.tagText) {
       // eslint-disable-next-line prefer-destructuring
@@ -63,8 +60,6 @@ class ActiveRectangle extends React.Component {
 
     if (e.button === 0) {
       e.stopPropagation();
-
-      // console.log('box click start');
 
       this.setState({
         dragging: true,
@@ -99,8 +94,6 @@ class ActiveRectangle extends React.Component {
 
     if (this.state.dragging) {
       e.stopPropagation();
-
-      // console.log('box click move');
 
       const nextState = {};
       const currPointer = TouchUtils.getCursorScreenPoint(e);

@@ -2,10 +2,8 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import App from '../components/main/App';
-import { getSampleParam } from '../selectors/SampleSelector';
 
 const mapStateToProps = state => ({
-  params: getSampleParam(state),
 });
 
 const mapDispatchToProps = dispatch => ({

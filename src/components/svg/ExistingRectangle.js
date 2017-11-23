@@ -26,7 +26,6 @@ class ExistingRectangle extends React.Component {
   };
 
   handleUnhover = (e) => {
-    console.log('out');
     this.setState({
       showButtons: false,
     });
@@ -47,7 +46,6 @@ class ExistingRectangle extends React.Component {
   };
 
   handleFocus = (e) => {
-    console.log('focus');
     e.preventDefault();
     e.stopPropagation();
 
