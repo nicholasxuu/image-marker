@@ -5,7 +5,6 @@ import ImageMarker from '../components/main/ImageMarker';
 import { saveMarkedResult } from '../actions/Api';
 
 const mapStateToProps = state => ({
-  imageUrl: '/sample/test.jpg',
 });
 
 const mapDispatchToProps = dispatch => ({

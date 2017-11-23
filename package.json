@@ -26,6 +26,7 @@
     "immutable": "^3.8.2",
     "isomorphic-fetch": "^2.2.1",
     "prop-types": "^15.6.0",
+    "query-string": "^5.0.1",
     "react": "^16.1.1",
     "react-bootstrap": "^0.31.5",
     "react-dom": "^16.1.1",

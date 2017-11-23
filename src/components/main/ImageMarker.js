@@ -29,6 +29,10 @@ class ImageMarker extends React.Component {
   };
 
   render = () => {
+    if (!this.props.imageUrl) {
+      return null;
+    }
+
     let svgEditor = null;
     if (this.state.imageReady) {
       svgEditor = (<SvgEditor
