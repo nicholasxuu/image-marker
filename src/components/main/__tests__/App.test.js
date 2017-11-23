@@ -14,9 +14,9 @@ test('sample component snapshot', () => {
   expect(tree).toMatchSnapshot();
 });
 
-test('CheckboxWithLabel changes the text after click', () => {
-  // Render a checkbox with label in the document
-  const dom = shallow(<App />);
-
-  expect(dom.text()).toEqual('hello world');
-});
+// test('CheckboxWithLabel changes the text after click', () => {
+//   // Render a checkbox with label in the document
+//   const dom = shallow(<App />);
+//
+//   expect(dom.text()).toEqual('hello world');
+// });
