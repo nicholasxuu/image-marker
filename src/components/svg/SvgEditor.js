@@ -48,6 +48,8 @@ class SvgEditor extends React.Component {
     this.svgBody = null;
     /** @type {DOMElement} */
     this.svgTransformLayer = null;
+
+    window.getMarkedItems = () => ([]);
   }
 
   componentDidMount = () => {
@@ -255,6 +257,19 @@ class SvgEditor extends React.Component {
    */
 
   saveTaggedRectangle = (tagText, x, y, width, height) => {
+    const existingSelectionList = this.state.existingSelectionList.push({
+      id: parseInt(Math.random() * 10000000, 10),
+      tagText,
+      x,
+      y,
+      width,
+      height,
+    });
+
+    window.getMarkedItems = () => {
+      return existingSelectionList.toJS();
+    };
+
     this.setState({
       selectActive: false,
       selectTagText: '',
@@ -262,14 +277,7 @@ class SvgEditor extends React.Component {
       selectY: 0,
       selectWidth: 0,
       selectHeight: 0,
-      existingSelectionList: this.state.existingSelectionList.push({
-        id: parseInt(Math.random() * 10000000, 10),
-        tagText,
-        x,
-        y,
-        width,
-        height,
-      }),
+      existingSelectionList,
     });
   };
 
@@ -340,23 +348,6 @@ class SvgEditor extends React.Component {
   render = () => {
     const viewBox = [0, 0, this.props.imageWidth, this.props.imageHeight].join(' ');
 
-    let activeRect = null;
-    if (this.state.selectActive) {
-      activeRect = (<ActiveRectangle
-        x={this.state.selectX}
-        y={this.state.selectY}
-        width={this.state.selectWidth}
-        height={this.state.selectHeight}
-        pending={this.state.selecting}
-        color={this.state.selectColor}
-        tagText={this.state.selectTagText}
-        getFinalScaleMultiplier={this.getFinalScaleMultiplier}
-        setActiveRectangle={this.setActiveRectangle}
-        submitTaggedRectangle={this.saveTaggedRectangle}
-        cancelTaggedRectangle={this.clearActiveRectangle}
-      />);
-    }
-
     return (
       <SvgContainer
         className="svg-editor"
@@ -414,7 +405,20 @@ class SvgEditor extends React.Component {
             ))}
 
             {/* active mark rectangle */}
-            {activeRect}
+            <ActiveRectangle
+              show={this.state.selectActive}
+              x={this.state.selectX}
+              y={this.state.selectY}
+              width={this.state.selectWidth}
+              height={this.state.selectHeight}
+              pending={this.state.selecting}
+              color={this.state.selectColor}
+              tagText={this.state.selectTagText}
+              getFinalScaleMultiplier={this.getFinalScaleMultiplier}
+              setActiveRectangle={this.setActiveRectangle}
+              submitTaggedRectangle={this.saveTaggedRectangle}
+              cancelTaggedRectangle={this.clearActiveRectangle}
+            />
           </g>
         </svg>
       </SvgContainer>

@@ -37,7 +37,7 @@ class ActiveRectangle extends React.Component {
     this.focusInput();
 
     // eslint-disable-next-line no-undef
-    document.addEventListener('keydown', this.handleKeyPress, true);
+    document.addEventListener('keydown', this.handleKeyPress, false);
   };
 
   /**
@@ -66,13 +66,17 @@ class ActiveRectangle extends React.Component {
    */
   componentDidUpdate = (prevProps) => {
     if (this.props.pending === false && prevProps.pending === true) {
-      this.focusInput();
+      // mode 1: let user input tag text after select.
+      // this.focusInput();
+
+      // mode 2: save immediately after select.
+      this.doSubmitTaggedRectangle();
     }
   };
 
   componentWillUnmount = () => {
     // eslint-disable-next-line no-undef
-    document.removeEventListener('keydown', this.handleKeyPress, true);
+    document.removeEventListener('keydown', this.handleKeyPress, false);
   };
 
   /**
@@ -190,15 +194,7 @@ class ActiveRectangle extends React.Component {
     });
   };
 
-  /**
-   * Submit result.
-   * Send final tagged text to parent.
-   * @param e
-   */
-  submitTaggedRectangle = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
+  doSubmitTaggedRectangle = () => {
     this.props.submitTaggedRectangle(
       this.state.tagText,
       this.state.x,
@@ -208,6 +204,18 @@ class ActiveRectangle extends React.Component {
     );
 
     this.clearState();
+  };
+
+  /**
+   * Submit result.
+   * Send final tagged text to parent.
+   * @param e
+   */
+  submitTaggedRectangle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    this.doSubmitTaggedRectangle();
   };
 
   /**
@@ -242,6 +250,10 @@ class ActiveRectangle extends React.Component {
   };
 
   render = () => {
+    if (!this.props.show) {
+      return null;
+    }
+
     let tagInput = null;
     if (!this.state.pending) {
       tagInput = [
@@ -256,7 +268,7 @@ class ActiveRectangle extends React.Component {
           }}
           onMouseDown={this.stopPropagation}
         >
-          <form
+          <div
             style={{
               width: '150px',
               height: '20px',
@@ -303,7 +315,7 @@ class ActiveRectangle extends React.Component {
             >
               &times;
             </button>
-          </form>
+          </div>
         </foreignObject>,
       ];
     }
@@ -338,9 +350,11 @@ ActiveRectangle.defaultProps = {
   tagText: '',
   color: 'red',
   pending: false,
+  show: false,
 };
 
 ActiveRectangle.propTypes = {
+  show: PropTypes.bool,
   tagText: PropTypes.string,
   x: PropTypes.number.isRequired,
   y: PropTypes.number.isRequired,

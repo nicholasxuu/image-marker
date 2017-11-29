@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sample</title>
+    <script type="application/javascript">
+      function getMarkedItems() {
+        var items = document.getElementById('image-marker-iframe').contentWindow.getMarkedItems();
+        console.log(items);
+      }
+    </script>
+</head>
+<body>
+    <iframe id="image-marker-iframe" src="/?imageurl=/sample/test.jpg" style="width: 800px; height: 600px;"></iframe>
+    <button onclick="getMarkedItems()" >Get</button>
+</body>
+</html>

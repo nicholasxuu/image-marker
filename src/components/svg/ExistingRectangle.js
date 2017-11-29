@@ -146,7 +146,7 @@ class ExistingRectangle extends React.Component {
           height={20}
           width={this.props.width}
           fill={this.props.color}
-          fillOpacity={1}
+          fillOpacity={0.5}
         />
         <text
           x={this.props.x}
