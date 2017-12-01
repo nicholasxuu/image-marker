@@ -1,4 +1,4 @@
-/* eslint-disable react/prefer-stateless-function,arrow-body-style */
+/* eslint-disable react/prefer-stateless-function,arrow-body-style,no-param-reassign */
 import React from 'react';
 import PropTypes from 'prop-types';
 import Immutable from 'immutable';
@@ -13,7 +13,18 @@ class SvgEditor extends React.Component {
   constructor(props) {
     super(props);
 
-    const existingSelectionList = props.existingList ? Immutable.fromJS(props.existingList) : Immutable.List();
+    let existingSelectionList = Immutable.List();
+    if (props.initialList) {
+      props.initialList.forEach((item) => {
+        if (!item.id) {
+          item.id = this.getRandomId();
+        }
+        if (!item.tagText) {
+          item.tagText = '';
+        }
+        existingSelectionList = existingSelectionList.push(item);
+      });
+    }
 
     this.state = {
       transformMatrix: [1, 0, 0, 1, 0, 0],
@@ -35,6 +46,8 @@ class SvgEditor extends React.Component {
 
       existingSelectionList,
       existingSelectionColor: 'green',
+
+      disabled: props.disabled,
     };
 
     this.svgState = {
@@ -74,7 +87,7 @@ class SvgEditor extends React.Component {
       this.setState({
         dragging: true,
       });
-    } else if (e.button === 0) {
+    } else if (e.button === 0 && !this.state.disabled) {
       // if left click, selecting rectangle
       const { pageX, pageY } = e;
 
@@ -258,10 +271,12 @@ class SvgEditor extends React.Component {
    * Active Rectangle Handling Functions
    */
 
+  getRandomId = () => (parseInt(Math.random() * 10000000, 10));
+
   saveTaggedRectangle = (tagText, x, y, width, height) => {
     // safety check
     const existingSelectionList = this.state.existingSelectionList.push({
-      id: parseInt(Math.random() * 10000000, 10),
+      id: this.getRandomId(),
       tagText,
       x: Math.max(0, x),
       y: Math.max(0, y),
@@ -438,7 +453,8 @@ const SvgContainer = styled.div`
 `;
 
 SvgEditor.defaultProps = {
-  existingSelectionList: null,
+  initialList: null,
+  disabled: false,
 };
 
 SvgEditor.propTypes = {
@@ -446,14 +462,13 @@ SvgEditor.propTypes = {
   imageHeight: PropTypes.number.isRequired,
   imageWidth: PropTypes.number.isRequired,
   onSave: PropTypes.func.isRequired,
-  existingSelectionList: PropTypes.arrayOf(
-    PropTypes.shape({
-      x: PropTypes.number.isRequired,
-      y: PropTypes.number.isRequired,
-      width: PropTypes.number.isRequired,
-      height: PropTypes.number.isRequired,
-    }),
-  ),
+  initialList: PropTypes.arrayOf(PropTypes.shape({
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+  })),
+  disabled: PropTypes.bool,
 };
 
 export default SvgEditor;

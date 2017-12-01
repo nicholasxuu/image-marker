@@ -10,6 +10,8 @@ class App extends React.Component {
 
     this.state = {
       imageUrl: '',
+      initialList: null,
+      disabled: false,
     };
   }
 
@@ -17,11 +19,20 @@ class App extends React.Component {
     const { search } = this.props.location;
     if (search) {
       const query = queryParam.parse(search);
+      const newState = {};
       if (query.imageurl) {
-        this.setState({
-          imageUrl: query.imageurl,
-        });
+        newState.imageUrl = query.imageurl;
       }
+
+      if (query.initlist) {
+        newState.initialList = JSON.parse(query.initlist);
+      }
+
+      if (query.disabled) {
+        newState.disabled = (query.disabled === '1');
+      }
+
+      this.setState(newState);
     }
   };
 
@@ -29,6 +40,8 @@ class App extends React.Component {
     return (
       <ImageMarker
         imageUrl={this.state.imageUrl}
+        initialList={this.state.initialList}
+        disabled={this.state.disabled}
       />
     );
   }

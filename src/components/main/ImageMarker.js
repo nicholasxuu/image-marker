@@ -37,6 +37,8 @@ class ImageMarker extends React.Component {
     if (this.state.imageReady) {
       svgEditor = (<SvgEditor
         key="svg-editor"
+        initialList={this.props.initialList}
+        disabled={this.props.disabled}
         imageUrl={this.props.imageUrl}
         imageHeight={this.state.imageHeight}
         imageWidth={this.state.imageWidth}
@@ -61,10 +63,21 @@ const FullSizeContainer = styled.div`
 `;
 
 ImageMarker.defaultProps = {
+  initialList: [],
+  disabled: false,
 };
 
 ImageMarker.propTypes = {
   imageUrl: PropTypes.string.isRequired,
+  initialList: PropTypes.arrayOf(
+    PropTypes.shape({
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired,
+      width: PropTypes.number.isRequired,
+      height: PropTypes.number.isRequired,
+    }),
+  ),
+  disabled: PropTypes.bool,
   actions: PropTypes.shape({
     onSave: PropTypes.func.isRequired,
   }).isRequired,

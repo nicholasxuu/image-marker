@@ -22,7 +22,7 @@ Eventually, user can save all the marked items.
 - ~~Handle selection out of bound.~~ done
 - ~~Add initial load all mode.~~ done
 - ~~Add iframe usage sample~~ sample.html
-- ~~Add iframe usage sample for result~~ result.html
+- ~~Add iframe usage sample for result~~ sampleView.html and sampleEditableView.html
 - ~~Add API fetch feedback in display.~~ changed to iframe interaction
 - ~~Add sample API.~~ changed to iframe interaction
 
