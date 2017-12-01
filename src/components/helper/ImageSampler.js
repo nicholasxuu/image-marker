@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 class ImageSampler extends React.Component {
   tellParentImageAttributes = () => {
-    this.props.setImageAttributes({
+    this.props.onReady({
       height: this.item.naturalHeight,
       width: this.item.naturalWidth,
     });
@@ -30,7 +30,7 @@ ImageSampler.defaultProps = {
 
 ImageSampler.propTypes = {
   imageUrl: PropTypes.string.isRequired,
-  setImageAttributes: PropTypes.func.isRequired,
+  onReady: PropTypes.func.isRequired,
 };
 
 export default ImageSampler;

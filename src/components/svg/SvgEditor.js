@@ -338,7 +338,7 @@ class SvgEditor extends React.Component {
       e.preventDefault(); // prevent save page action by browser
 
       // ctrl+s for save
-      this.props.saveMarkedResult(this.props.imageUrl, this.state.existingSelectionList);
+      this.props.onSave(this.props.imageUrl, this.state.existingSelectionList);
 
       return false;
     }
@@ -398,9 +398,9 @@ class SvgEditor extends React.Component {
                 height={rect.height}
                 tagText={rect.tagText}
                 color={this.state.existingSelectionColor}
-                editExistingRectangle={this.editExistingRectangle}
-                removeExistingRectangle={this.removeExistingRectangle}
-                focusExistingRectangle={this.focusExistingRectangle}
+                onEdit={this.editExistingRectangle}
+                onRemove={this.removeExistingRectangle}
+                onFocus={this.focusExistingRectangle}
               />
             ))}
 
@@ -415,9 +415,9 @@ class SvgEditor extends React.Component {
               color={this.state.selectColor}
               tagText={this.state.selectTagText}
               getFinalScaleMultiplier={this.getFinalScaleMultiplier}
-              setActiveRectangle={this.setActiveRectangle}
-              submitTaggedRectangle={this.saveTaggedRectangle}
-              cancelTaggedRectangle={this.clearActiveRectangle}
+              onChange={this.setActiveRectangle}
+              onSave={this.saveTaggedRectangle}
+              onCancel={this.clearActiveRectangle}
             />
           </g>
         </svg>
@@ -441,7 +441,7 @@ SvgEditor.propTypes = {
   imageUrl: PropTypes.string.isRequired,
   imageHeight: PropTypes.number.isRequired,
   imageWidth: PropTypes.number.isRequired,
-  saveMarkedResult: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
 };
 
 export default SvgEditor;

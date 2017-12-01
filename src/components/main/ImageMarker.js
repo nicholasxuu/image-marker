@@ -40,14 +40,14 @@ class ImageMarker extends React.Component {
         imageUrl={this.props.imageUrl}
         imageHeight={this.state.imageHeight}
         imageWidth={this.state.imageWidth}
-        saveMarkedResult={this.props.actions.saveMarkedResult}
+        onSave={this.props.actions.onSave}
       />);
     }
     return (
       <FullSizeContainer>
         <ImageSampler
           imageUrl={this.props.imageUrl}
-          setImageAttributes={this.setImageAttributes}
+          onReady={this.setImageAttributes}
         />
         {svgEditor}
       </FullSizeContainer>
@@ -66,7 +66,7 @@ ImageMarker.defaultProps = {
 ImageMarker.propTypes = {
   imageUrl: PropTypes.string.isRequired,
   actions: PropTypes.shape({
-    saveMarkedResult: PropTypes.func.isRequired,
+    onSave: PropTypes.func.isRequired,
   }).isRequired,
 };
 

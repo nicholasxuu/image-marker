@@ -9,7 +9,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators({
-    saveMarkedResult,
+    onSave: saveMarkedResult,
   }, dispatch),
 });
 

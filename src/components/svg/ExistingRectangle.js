@@ -47,7 +47,7 @@ class ExistingRectangle extends React.Component {
     e.preventDefault();
     e.stopPropagation();
 
-    this.props.removeExistingRectangle(this.props.id);
+    this.props.onRemove(this.props.id);
   };
 
   /**
@@ -58,7 +58,7 @@ class ExistingRectangle extends React.Component {
     e.preventDefault();
     e.stopPropagation();
 
-    this.props.editExistingRectangle(this.props.id);
+    this.props.onEdit(this.props.id);
   };
 
   /**
@@ -71,7 +71,7 @@ class ExistingRectangle extends React.Component {
     e.preventDefault();
     e.stopPropagation();
 
-    this.props.focusExistingRectangle(this.props.id);
+    this.props.onFocus(this.props.id);
   };
 
   renderEditButtons = () => {
@@ -174,9 +174,9 @@ ExistingRectangle.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   color: PropTypes.string,
-  editExistingRectangle: PropTypes.func.isRequired,
-  removeExistingRectangle: PropTypes.func.isRequired,
-  focusExistingRectangle: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onRemove: PropTypes.func.isRequired,
+  onFocus: PropTypes.func.isRequired,
 };
 
 export default ExistingRectangle;
