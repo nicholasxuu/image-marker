@@ -13,6 +13,8 @@ class SvgEditor extends React.Component {
   constructor(props) {
     super(props);
 
+    const existingSelectionList = props.existingList ? Immutable.fromJS(props.existingList) : Immutable.List();
+
     this.state = {
       transformMatrix: [1, 0, 0, 1, 0, 0],
 
@@ -31,7 +33,7 @@ class SvgEditor extends React.Component {
       selectTagText: '',
       selectColor: 'red',
 
-      existingSelectionList: Immutable.List(),
+      existingSelectionList,
       existingSelectionColor: 'green',
     };
 
@@ -257,13 +259,14 @@ class SvgEditor extends React.Component {
    */
 
   saveTaggedRectangle = (tagText, x, y, width, height) => {
+    // safety check
     const existingSelectionList = this.state.existingSelectionList.push({
       id: parseInt(Math.random() * 10000000, 10),
       tagText,
-      x,
-      y,
-      width,
-      height,
+      x: Math.max(0, x),
+      y: Math.max(0, y),
+      width: Math.min(this.props.imageWidth - x, width) + Math.min(0, x),
+      height: Math.min(this.props.imageHeight - y, height) + Math.min(0, y),
     });
 
     window.getMarkedItems = () => {
@@ -435,6 +438,7 @@ const SvgContainer = styled.div`
 `;
 
 SvgEditor.defaultProps = {
+  existingSelectionList: null,
 };
 
 SvgEditor.propTypes = {
@@ -442,6 +446,14 @@ SvgEditor.propTypes = {
   imageHeight: PropTypes.number.isRequired,
   imageWidth: PropTypes.number.isRequired,
   onSave: PropTypes.func.isRequired,
+  existingSelectionList: PropTypes.arrayOf(
+    PropTypes.shape({
+      x: PropTypes.number.isRequired,
+      y: PropTypes.number.isRequired,
+      width: PropTypes.number.isRequired,
+      height: PropTypes.number.isRequired,
+    }),
+  ),
 };
 
 export default SvgEditor;

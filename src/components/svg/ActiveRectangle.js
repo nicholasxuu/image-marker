@@ -239,11 +239,11 @@ class ActiveRectangle extends React.Component {
     switch (e.keyCode) {
       case 27: // escape
         e.preventDefault();
-        this.onCancel(e);
+        this.cancelTaggedRectangle(e);
         break;
       case 13: // enter
         e.preventDefault();
-        this.onSave(e);
+        this.submitTaggedRectangle(e);
         break;
       default:
     }
@@ -290,7 +290,7 @@ class ActiveRectangle extends React.Component {
               }}
             />
             <button
-              onClick={this.onSave}
+              onClick={this.submitTaggedRectangle}
               style={{
                 width: '20px',
                 height: '20px',
@@ -303,7 +303,7 @@ class ActiveRectangle extends React.Component {
               &#x2713;
             </button>
             <button
-              onClick={this.onCancel}
+              onClick={this.cancelTaggedRectangle}
               style={{
                 width: '20px',
                 height: '20px',
