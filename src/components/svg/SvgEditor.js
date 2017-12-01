@@ -8,6 +8,7 @@ import SvgUtils from '../../utils/SvgUtils';
 import TouchUtils from '../../utils/TouchUtils';
 import ActiveRectangle from './ActiveRectangle';
 import ExistingRectangle from './ExistingRectangle';
+import ZoomButtons from './ZoomButtons';
 
 class SvgEditor extends React.Component {
   constructor(props) {
@@ -190,6 +191,14 @@ class SvgEditor extends React.Component {
     }
   };
 
+  handleZoomIn = () => {
+    this.svgZoom(0.3);
+  };
+
+  handleZoomOut = () => {
+    this.svgZoom(-0.3);
+  };
+
   setActiveRectangle = (x, y, width, height) => {
     this.setState({
       selectX: x,
@@ -370,6 +379,11 @@ class SvgEditor extends React.Component {
       <SvgContainer
         className="svg-editor"
       >
+        <ZoomButtons
+          onZoomIn={this.handleZoomIn}
+          onZoomOut={this.handleZoomOut}
+        />
+
         <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
 
         <svg

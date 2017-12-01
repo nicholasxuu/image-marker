@@ -19,6 +19,7 @@ Eventually, user can save all the marked items.
 
 - Add rotate capability
 - Add selected rectangle dimension adjustment capability.
+- Add icons for zoom
 - ~~Handle selection out of bound.~~ done
 - ~~Add initial load all mode.~~ done
 - ~~Add iframe usage sample~~ sample.html
