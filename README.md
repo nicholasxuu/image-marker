@@ -19,13 +19,16 @@ Eventually, user can save all the marked items.
 
 - Add rotate capability
 - Add selected rectangle dimension adjustment capability.
-- Add icons for zoom
+- ~~Add icons for zoom~~ done
 - ~~Handle selection out of bound.~~ done
 - ~~Add initial load all mode.~~ done
 - ~~Add iframe usage sample~~ sample.html
 - ~~Add iframe usage sample for result~~ sampleView.html and sampleEditableView.html
 - ~~Add API fetch feedback in display.~~ changed to iframe interaction
 - ~~Add sample API.~~ changed to iframe interaction
+- Make edit mode trigger when clicked border.
+- Allow userColorMap in request query, to mark existing rect in different colors.
+
 
 ## Packages
 

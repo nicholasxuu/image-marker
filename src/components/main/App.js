@@ -10,7 +10,8 @@ class App extends React.Component {
 
     this.state = {
       imageUrl: '',
-      initialList: null,
+      rawItemList: [],
+      userColorMap: {},
       disabled: false,
     };
   }
@@ -24,12 +25,16 @@ class App extends React.Component {
         newState.imageUrl = query.imageurl;
       }
 
-      if (query.initlist) {
-        newState.initialList = JSON.parse(query.initlist);
+      if (query.itemlist) {
+        newState.rawItemList = JSON.parse(query.itemlist);
       }
 
       if (query.disabled) {
         newState.disabled = (query.disabled === '1');
+      }
+
+      if (query.usercolormap) {
+        newState.userColorMap = JSON.parse(query.usercolormap);
       }
 
       this.setState(newState);
@@ -40,8 +45,10 @@ class App extends React.Component {
     return (
       <ImageMarker
         imageUrl={this.state.imageUrl}
-        initialList={this.state.initialList}
+        rawItemList={this.state.rawItemList}
+        userColorMap={this.state.userColorMap}
         disabled={this.state.disabled}
+        onSaveMarkedItemList={this.props.actions.onSaveMarkedItemList}
       />
     );
   }
@@ -57,6 +64,9 @@ App.propTypes = {
   location: PropTypes.shape({
     search: PropTypes.string,
   }),
+  actions: PropTypes.shape({
+    onSaveMarkedItemList: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 export default App;

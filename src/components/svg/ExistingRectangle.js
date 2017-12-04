@@ -132,27 +132,30 @@ class ExistingRectangle extends React.Component {
         fillOpacity={0}
         strokeWidth={2}
         stroke={this.props.color}
+        onMouseEnter={this.handleHover}
+        onMouseLeave={this.handleUnhover}
+        onDoubleClick={this.handleEdit}
       />,
       <g
         key="select-tag"
-        onMouseEnter={this.handleHover}
-        onMouseLeave={this.handleUnhover}
-        onMouseDown={this.handleFocus}
+        // onMouseDown={this.handleFocus}
       >
-        <rect
-          className="exist-select"
-          x={this.props.x}
-          y={this.props.y}
-          height={20}
-          width={this.props.width}
-          fill={this.props.color}
-          fillOpacity={0.5}
-        />
+        {/*<rect*/}
+          {/*className="exist-select"*/}
+          {/*x={this.props.x}*/}
+          {/*y={this.props.y}*/}
+          {/*height={20}*/}
+          {/*width={this.props.width}*/}
+          {/*fill={this.props.color}*/}
+          {/*fillOpacity={0.5}*/}
+        {/*/>*/}
         <text
           x={this.props.x}
           y={this.props.y + 15}
           fontSize={15}
           fill="white"
+          strokeWidth={1}
+          stroke="black"
         >
           {this.props.tagText}
         </text>

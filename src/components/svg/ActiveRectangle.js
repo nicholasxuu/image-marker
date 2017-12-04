@@ -19,11 +19,11 @@ class ActiveRectangle extends React.Component {
       height: props.height,
       pending: props.pending,
 
+      tagText: props.tagText,
+
       dragging: false,
       panX: null,
       panY: null,
-
-      tagText: props.tagText,
     };
 
     this.tagInput = null;
@@ -196,11 +196,12 @@ class ActiveRectangle extends React.Component {
 
   doSubmitTaggedRectangle = () => {
     this.props.onSave(
-      this.state.tagText,
       this.state.x,
       this.state.y,
       this.state.width,
       this.state.height,
+      this.state.color,
+      this.state.tagText,
     );
 
     this.clearState();
@@ -231,6 +232,15 @@ class ActiveRectangle extends React.Component {
     this.props.onCancel();
   };
 
+  deleteTaggedRectangle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    this.clearState();
+
+    this.props.onDelete();
+  };
+
   /**
    * when user typing in tag input, handle hotkey.
    * @param e
@@ -240,6 +250,10 @@ class ActiveRectangle extends React.Component {
       case 27: // escape
         e.preventDefault();
         this.cancelTaggedRectangle(e);
+        break;
+      case 46: // delete
+        e.preventDefault();
+        this.deleteTaggedRectangle(e);
         break;
       case 13: // enter
         e.preventDefault();
@@ -336,6 +350,7 @@ class ActiveRectangle extends React.Component {
         onMouseDown={this.onClickStart}
         onMouseMove={this.onClickMove}
         onMouseUp={this.onClickEnd}
+        onDoubleClick={this.submitTaggedRectangle}
 
         style={{
           cursor: 'move',
@@ -355,17 +370,18 @@ ActiveRectangle.defaultProps = {
 
 ActiveRectangle.propTypes = {
   show: PropTypes.bool,
-  tagText: PropTypes.string,
   x: PropTypes.number.isRequired,
   y: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  pending: PropTypes.bool,
+  pending: PropTypes.bool, // resizing
+  tagText: PropTypes.string,
   color: PropTypes.string,
   getFinalScaleMultiplier: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default ActiveRectangle;
