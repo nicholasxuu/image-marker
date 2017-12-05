@@ -466,6 +466,7 @@ class SvgEditor extends React.Component {
                 height={rect.height}
                 tagText={rect.tagText}
                 color={rect.color}
+                disabled={this.state.disabled}
                 onEdit={this.editExistingRectangle}
                 onRemove={this.removeExistingRectangle}
                 onFocus={this.focusExistingRectangle}

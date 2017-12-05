@@ -20,6 +20,9 @@ class ExistingRectangle extends React.Component {
    * @param e
    */
   handleHover = (e) => {
+    if (this.props.disabled) {
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
 
@@ -34,6 +37,9 @@ class ExistingRectangle extends React.Component {
    * @param e
    */
   handleUnhover = (e) => {
+    if (this.props.disabled) {
+      return;
+    }
     this.setState({
       highlight: false,
     });
@@ -44,6 +50,9 @@ class ExistingRectangle extends React.Component {
    * @param e
    */
   handleDelete = (e) => {
+    if (this.props.disabled) {
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
 
@@ -55,6 +64,9 @@ class ExistingRectangle extends React.Component {
    * @param e
    */
   handleEdit = (e) => {
+    if (this.props.disabled) {
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
 
@@ -68,6 +80,9 @@ class ExistingRectangle extends React.Component {
    * @param e
    */
   handleFocus = (e) => {
+    if (this.props.disabled) {
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
 
@@ -117,7 +132,7 @@ class ExistingRectangle extends React.Component {
   };
 
   render = () => {
-    let editButtons = null;
+    // let editButtons = null;
     // if (this.state.highlight) {
     //   editButtons = this.renderEditButtons();
     // }
@@ -168,6 +183,7 @@ class ExistingRectangle extends React.Component {
 
 ExistingRectangle.defaultProps = {
   color: 'green',
+  disabled: false,
 };
 
 ExistingRectangle.propTypes = {
@@ -178,6 +194,7 @@ ExistingRectangle.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   color: PropTypes.string,
+  disabled: PropTypes.bool,
   onEdit: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired,
   onFocus: PropTypes.func.isRequired,
