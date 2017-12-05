@@ -345,7 +345,8 @@ class ActiveRectangle extends React.Component {
 
         fillOpacity={0}
         stroke={this.props.color}
-        strokeWidth={2}
+        strokeWidth={3}
+        strokeOpacity={1}
 
         onMouseDown={this.onClickStart}
         onMouseMove={this.onClickMove}

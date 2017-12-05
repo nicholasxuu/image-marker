@@ -100,8 +100,8 @@ class SvgEditor extends React.Component {
       );
 
       this.setState({
-        selectActive: true,
         selecting: true,
+        selectActive: false, // don't activate it yet, for double click event
         selectStartX: x,
         selectStartY: y,
         selectWidth: 0,
@@ -120,6 +120,7 @@ class SvgEditor extends React.Component {
         panY: null, // unset value
 
         selecting: false,
+        selectActive: false,
         selectStartX: 0,
         selectStartY: 0,
       });
@@ -160,6 +161,12 @@ class SvgEditor extends React.Component {
       const selectY = Math.min(y, this.state.selectStartY);
       const selectWidth = Math.abs(x - this.state.selectStartX);
       const selectHeight = Math.abs(y - this.state.selectStartY);
+
+      if (this.state.selectActive === false && ((selectWidth + selectHeight) >= 5)) {
+        this.setState({
+          selectActive: true,
+        });
+      }
 
       this.setState({
         selectX,
