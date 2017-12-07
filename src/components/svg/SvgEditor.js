@@ -1,7 +1,8 @@
-/* eslint-disable react/prefer-stateless-function,arrow-body-style,no-param-reassign */
+/* eslint-disable no-param-reassign,react/sort-comp */
 import React from 'react';
 import PropTypes from 'prop-types';
 import Immutable from 'immutable';
+import ImmutablePropTypes from 'react-immutable-proptypes';
 import ReactResizeDetector from 'react-resize-detector';
 import styled from 'styled-components';
 import SvgUtils from '../../utils/SvgUtils';
@@ -9,23 +10,11 @@ import TouchUtils from '../../utils/TouchUtils';
 import ActiveRectangle from './ActiveRectangle';
 import ExistingRectangle from './ExistingRectangle';
 import ZoomButtons from './ZoomButtons';
+import { getRandomId } from '../../utils/RandomUtils';
 
 class SvgEditor extends React.Component {
   constructor(props) {
     super(props);
-
-    let existingSelectionList = Immutable.List();
-    if (props.initialList) {
-      props.initialList.forEach((item) => {
-        if (!item.id) {
-          item.id = this.getRandomId();
-        }
-        if (!item.tagText) {
-          item.tagText = '';
-        }
-        existingSelectionList = existingSelectionList.push(item);
-      });
-    }
 
     this.state = {
       transformMatrix: [1, 0, 0, 1, 0, 0],
@@ -35,18 +24,17 @@ class SvgEditor extends React.Component {
       panY: null, // for pan movement calculation
 
       selectActive: false,
+      selectedItem: null,
       selecting: false,
-      selectStartX: 0,
-      selectStartY: 0,
+      selectStartX: 0, // helper for initial drag
+      selectStartY: 0, // helper for initial drag
       selectX: 0,
       selectY: 0,
       selectWidth: 0,
       selectHeight: 0,
-      selectTagText: '',
       selectColor: 'red',
 
-      existingSelectionList,
-      existingSelectionColor: 'green',
+      markedItemList: props.markedItemList,
 
       disabled: props.disabled,
     };
@@ -65,19 +53,33 @@ class SvgEditor extends React.Component {
     /** @type {DOMElement} */
     this.svgTransformLayer = null;
 
-    window.getMarkedItems = () => ([]);
+    props.onSaveMarkedItemList(Immutable.List());
   }
+
+  componentWillReceiveProps = (nextProps) => {
+    if (nextProps.markedItemList !== this.props.markedItemList) {
+      this.setState({
+        markedItemList: nextProps.markedItemList,
+      });
+    }
+  };
+
+  componentDidUpdate = (prevProps, prevState) => {
+    if (prevState.markedItemList !== this.state.markedItemList) {
+      this.props.onSaveMarkedItemList(this.state.markedItemList);
+    }
+  };
 
   componentDidMount = () => {
     this.updateFinalMatrix();
 
     // eslint-disable-next-line no-undef
-    document.addEventListener('keydown', this.handleKeyPress, true);
+    // document.addEventListener('keydown', this.handleKeyPress, true);
   };
 
   componentWillUnmount = () => {
     // eslint-disable-next-line no-undef
-    document.removeEventListener('keydown', this.handleKeyPress, true);
+    // document.removeEventListener('keydown', this.handleKeyPress, true);
   };
 
   onClickStart = (e) => {
@@ -89,7 +91,7 @@ class SvgEditor extends React.Component {
         dragging: true,
       });
     } else if (e.button === 0 && !this.state.disabled) {
-      // if left click, selecting rectangle
+      // if left click, selecting rectangle, aka, creating new one
       const { pageX, pageY } = e;
 
       const { x, y } = SvgUtils.pagePosToSvgPos(
@@ -98,8 +100,8 @@ class SvgEditor extends React.Component {
       );
 
       this.setState({
-        selectActive: true,
         selecting: true,
+        selectActive: false, // don't activate it yet, for double click event
         selectStartX: x,
         selectStartY: y,
         selectWidth: 0,
@@ -112,21 +114,13 @@ class SvgEditor extends React.Component {
     e.preventDefault();
 
     if (this.state.selecting || this.state.dragging) {
-      if (
-        this.state.selecting &&
-        this.state.selectWidth + this.state.selectHeight < 5
-      ) {
-        // mis-click, don't register
-        this.clearActiveRectangle();
-      }
-
-
       this.setState({
         dragging: false,
         panX: null, // unset value
         panY: null, // unset value
 
         selecting: false,
+        selectActive: false,
         selectStartX: 0,
         selectStartY: 0,
       });
@@ -167,6 +161,12 @@ class SvgEditor extends React.Component {
       const selectY = Math.min(y, this.state.selectStartY);
       const selectWidth = Math.abs(x - this.state.selectStartX);
       const selectHeight = Math.abs(y - this.state.selectStartY);
+
+      if (this.state.selectActive === false && ((selectWidth + selectHeight) >= 5)) {
+        this.setState({
+          selectActive: true,
+        });
+      }
 
       this.setState({
         selectX,
@@ -220,9 +220,8 @@ class SvgEditor extends React.Component {
     return null;
   };
 
-  getFinalScaleMultiplier = () => {
-    return this.getFinalMatrix().a; // svg box's scale comparing to current viewport size
-  };
+  // svg box's scale comparing to current viewport size
+  getFinalScaleMultiplier = () => (this.getFinalMatrix().a);
 
   /**
    * Get matrix for svg vs viewport.
@@ -235,9 +234,8 @@ class SvgEditor extends React.Component {
     return null;
   };
 
-  getViewportScaleMultiplier = () => {
-    return this.getViewportMatrix().a; // svg box's scale comparing to current viewport size
-  };
+  // svg box's scale comparing to current viewport size
+  getViewportScaleMultiplier = () => (this.getViewportMatrix().a);
 
   updateFinalMatrix = () => {
     this.svgState.finalMatrix = this.getFinalMatrix();
@@ -280,43 +278,77 @@ class SvgEditor extends React.Component {
    * Active Rectangle Handling Functions
    */
 
-  getRandomId = () => (parseInt(Math.random() * 10000000, 10));
+  saveTaggedRectangle = (x, y, width, height, color, tagText) => {
+    if ((width + height) < 5) {
+      // mis-click, don't register
+      this.clearActiveRectangle();
+      return;
+    }
 
-  saveTaggedRectangle = (tagText, x, y, width, height) => {
-    // safety check
-    const existingSelectionList = this.state.existingSelectionList.push({
-      id: this.getRandomId(),
-      tagText,
-      x: Math.max(0, x),
-      y: Math.max(0, y),
-      width: Math.min(this.props.imageWidth - x, width) + Math.min(0, x),
-      height: Math.min(this.props.imageHeight - y, height) + Math.min(0, y),
-    });
-
-    window.getMarkedItems = () => {
-      return existingSelectionList.toJS();
-    };
+    // Yea, I'm a f***ing genius.
+    const markedItem = Object.assign(
+      {
+        id: getRandomId(),
+        tagText: '',
+      },
+      this.state.selectedItem,
+      {
+        x: Math.max(0, x),
+        y: Math.max(0, y),
+        width: Math.min(this.props.imageWidth - x, width) + Math.min(0, x),
+        height: Math.min(this.props.imageHeight - y, height) + Math.min(0, y),
+        color,
+        tagText,
+      },
+    );
+    const markedItemList = this.state.markedItemList.push(markedItem);
 
     this.setState({
       selectActive: false,
-      selectTagText: '',
+      selectedItem: null,
       selectX: 0,
       selectY: 0,
       selectWidth: 0,
       selectHeight: 0,
-      existingSelectionList,
+      markedItemList,
+    });
+  };
+
+  deleteActiveRectangle = () => {
+    this.setState({
+      selectActive: false,
+      selectedItem: null,
+      selectX: 0,
+      selectY: 0,
+      selectWidth: 0,
+      selectHeight: 0,
     });
   };
 
   clearActiveRectangle = () => {
-    this.setState({
-      selectActive: false,
-      selectTagText: '',
-      selectX: 0,
-      selectY: 0,
-      selectWidth: 0,
-      selectHeight: 0,
-    });
+    if (this.state.selectedItem !== null) {
+      // add it back
+      const markedItemList = this.state.markedItemList.push(this.state.selectedItem);
+
+      this.setState({
+        selectActive: false,
+        selectedItem: null,
+        selectX: 0,
+        selectY: 0,
+        selectWidth: 0,
+        selectHeight: 0,
+        markedItemList,
+      });
+    } else {
+      this.setState({
+        selectActive: false,
+        selectedItem: null,
+        selectX: 0,
+        selectY: 0,
+        selectWidth: 0,
+        selectHeight: 0,
+      });
+    }
   };
 
   /**
@@ -324,7 +356,11 @@ class SvgEditor extends React.Component {
    */
 
   editExistingRectangle = (id) => {
-    const target = this.state.existingSelectionList.find(item => (item.id === id));
+    const target = this.state.markedItemList.find(item => (item.id === id));
+    if (!target) {
+      console.warn(`id: ${id} not found`);
+      return;
+    }
     this.setState({
       selectActive: true,
       selecting: false,
@@ -332,8 +368,8 @@ class SvgEditor extends React.Component {
       selectY: target.y,
       selectWidth: target.width,
       selectHeight: target.height,
-      selectTagText: target.tagText,
-      existingSelectionList: this.state.existingSelectionList
+      selectedItem: target,
+      markedItemList: this.state.markedItemList
         .filter(item => (
           item.id !== id
         )),
@@ -342,7 +378,7 @@ class SvgEditor extends React.Component {
 
   removeExistingRectangle = (id) => {
     this.setState({
-      existingSelectionList: this.state.existingSelectionList
+      markedItemList: this.state.markedItemList
         .filter(item => (
           item.id !== id
         )),
@@ -350,9 +386,9 @@ class SvgEditor extends React.Component {
   };
 
   focusExistingRectangle = (id) => {
-    const target = this.state.existingSelectionList.find(item => (item.id === id));
+    const target = this.state.markedItemList.find(item => (item.id === id));
     this.setState({
-      existingSelectionList: this.state.existingSelectionList
+      markedItemList: this.state.markedItemList
         .filter(item => (
           item.id !== id
         ))
@@ -360,17 +396,17 @@ class SvgEditor extends React.Component {
     });
   };
 
-  handleKeyPress = (e) => {
-    if (e.keyCode === 83 && e.ctrlKey) {
-      e.preventDefault(); // prevent save page action by browser
-
-      // ctrl+s for save
-      this.props.onSave(this.props.imageUrl, this.state.existingSelectionList);
-
-      return false;
-    }
-    return true;
-  };
+  // handleKeyPress = (e) => {
+  //   if (e.keyCode === 83 && e.ctrlKey) {
+  //     e.preventDefault(); // prevent save page action by browser
+  //
+  //     // ctrl+s for save
+  //     this.props.onSave(this.props.imageUrl, this.state.markedItemList);
+  //
+  //     return false;
+  //   }
+  //   return true;
+  // };
 
   render = () => {
     const viewBox = [0, 0, this.props.imageWidth, this.props.imageHeight].join(' ');
@@ -420,7 +456,7 @@ class SvgEditor extends React.Component {
             />
 
             {/* existing marked rectangles */}
-            {this.state.existingSelectionList.map(rect => (
+            {this.state.markedItemList.map(rect => (
               <ExistingRectangle
                 key={rect.id}
                 id={rect.id}
@@ -429,7 +465,8 @@ class SvgEditor extends React.Component {
                 width={rect.width}
                 height={rect.height}
                 tagText={rect.tagText}
-                color={this.state.existingSelectionColor}
+                color={rect.color}
+                disabled={this.state.disabled}
                 onEdit={this.editExistingRectangle}
                 onRemove={this.removeExistingRectangle}
                 onFocus={this.focusExistingRectangle}
@@ -445,11 +482,11 @@ class SvgEditor extends React.Component {
               height={this.state.selectHeight}
               pending={this.state.selecting}
               color={this.state.selectColor}
-              tagText={this.state.selectTagText}
               getFinalScaleMultiplier={this.getFinalScaleMultiplier}
               onChange={this.setActiveRectangle}
               onSave={this.saveTaggedRectangle}
               onCancel={this.clearActiveRectangle}
+              onDelete={this.deleteActiveRectangle}
             />
           </g>
         </svg>
@@ -467,7 +504,7 @@ const SvgContainer = styled.div`
 `;
 
 SvgEditor.defaultProps = {
-  initialList: null,
+  markedItemList: Immutable.List(),
   disabled: false,
 };
 
@@ -475,14 +512,19 @@ SvgEditor.propTypes = {
   imageUrl: PropTypes.string.isRequired,
   imageHeight: PropTypes.number.isRequired,
   imageWidth: PropTypes.number.isRequired,
-  onSave: PropTypes.func.isRequired,
-  initialList: PropTypes.arrayOf(PropTypes.shape({
+  // onSave: PropTypes.func.isRequired, // no longer needed, use global to save result
+  markedItemList: ImmutablePropTypes.listOf(PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    tagText: PropTypes.string.isRequired,
     x: PropTypes.number.isRequired,
     y: PropTypes.number.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
+    user: PropTypes.string.isRequired,
+    color: PropTypes.string.isRequired,
   })),
   disabled: PropTypes.bool,
+  onSaveMarkedItemList: PropTypes.func.isRequired,
 };
 
 export default SvgEditor;

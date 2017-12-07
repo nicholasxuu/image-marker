@@ -11,7 +11,7 @@ class ExistingRectangle extends React.Component {
     super(props);
 
     this.state = {
-      showButtons: false,
+      highlight: false,
     };
   }
 
@@ -20,12 +20,15 @@ class ExistingRectangle extends React.Component {
    * @param e
    */
   handleHover = (e) => {
+    if (this.props.disabled) {
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
 
     // show edit and remove button
     this.setState({
-      showButtons: true,
+      highlight: true,
     });
   };
 
@@ -34,8 +37,11 @@ class ExistingRectangle extends React.Component {
    * @param e
    */
   handleUnhover = (e) => {
+    if (this.props.disabled) {
+      return;
+    }
     this.setState({
-      showButtons: false,
+      highlight: false,
     });
   };
 
@@ -44,6 +50,9 @@ class ExistingRectangle extends React.Component {
    * @param e
    */
   handleDelete = (e) => {
+    if (this.props.disabled) {
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
 
@@ -55,6 +64,9 @@ class ExistingRectangle extends React.Component {
    * @param e
    */
   handleEdit = (e) => {
+    if (this.props.disabled) {
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
 
@@ -68,6 +80,9 @@ class ExistingRectangle extends React.Component {
    * @param e
    */
   handleFocus = (e) => {
+    if (this.props.disabled) {
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
 
@@ -117,10 +132,10 @@ class ExistingRectangle extends React.Component {
   };
 
   render = () => {
-    let editButtons = null;
-    if (this.state.showButtons) {
-      editButtons = this.renderEditButtons();
-    }
+    // let editButtons = null;
+    // if (this.state.highlight) {
+    //   editButtons = this.renderEditButtons();
+    // }
     return [
       <rect
         key="select-body"
@@ -130,33 +145,37 @@ class ExistingRectangle extends React.Component {
         width={this.props.width}
         height={this.props.height}
         fillOpacity={0}
-        strokeWidth={2}
+        strokeWidth={this.state.highlight ? 3 : 2}
         stroke={this.props.color}
+        onMouseEnter={this.handleHover}
+        onMouseLeave={this.handleUnhover}
+        onDoubleClickCapture={this.handleEdit}
       />,
       <g
         key="select-tag"
-        onMouseEnter={this.handleHover}
-        onMouseLeave={this.handleUnhover}
-        onMouseDown={this.handleFocus}
+        // onMouseDown={this.handleFocus}
       >
-        <rect
-          className="exist-select"
-          x={this.props.x}
-          y={this.props.y}
-          height={20}
-          width={this.props.width}
-          fill={this.props.color}
-          fillOpacity={0.5}
-        />
+        {/*<rect*/}
+          {/*className="exist-select"*/}
+          {/*x={this.props.x}*/}
+          {/*y={this.props.y}*/}
+          {/*height={20}*/}
+          {/*width={this.props.width}*/}
+          {/*fill={this.props.color}*/}
+          {/*fillOpacity={0.5}*/}
+        {/*/>*/}
         <text
           x={this.props.x}
           y={this.props.y + 15}
           fontSize={15}
-          fill="white"
+          fontWeight={900}
+          fill="black"
+          strokeWidth={1}
+          stroke="white"
         >
           {this.props.tagText}
         </text>
-        {editButtons}
+        {/*{editButtons}*/}
       </g>,
     ];
   }
@@ -164,6 +183,7 @@ class ExistingRectangle extends React.Component {
 
 ExistingRectangle.defaultProps = {
   color: 'green',
+  disabled: false,
 };
 
 ExistingRectangle.propTypes = {
@@ -174,6 +194,7 @@ ExistingRectangle.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   color: PropTypes.string,
+  disabled: PropTypes.bool,
   onEdit: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired,
   onFocus: PropTypes.func.isRequired,

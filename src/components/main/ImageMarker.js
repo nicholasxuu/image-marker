@@ -1,9 +1,11 @@
-/* eslint-disable react/prefer-stateless-function,arrow-body-style */
+/* eslint-disable react/prefer-stateless-function,arrow-body-style,react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import Immutable from 'immutable';
 import ImageSampler from '../helper/ImageSampler';
 import SvgEditor from '../svg/SvgEditor';
+import { getRandomId } from '../../utils/RandomUtils';
 
 class ImageMarker extends React.Component {
   constructor(props) {
@@ -13,8 +15,52 @@ class ImageMarker extends React.Component {
       imageReady: false,
       imageHeight: 0,
       imageWidth: 0,
+      markedItemList: this.getMarkedItemList(props.rawItemList, props.userColorMap),
     };
   }
+
+  componentWillReceiveProps = (nextProps) => {
+    // update state.markedItemList if related props changed.
+    if (
+      JSON.stringify(nextProps.userColorMap) !== JSON.stringify(this.props.userColorMap) ||
+      JSON.stringify(nextProps.rawItemList) !== JSON.stringify(this.props.rawItemList)
+    ) {
+      const markedItemList = this.getMarkedItemList(
+        nextProps.rawItemList,
+        nextProps.userColorMap,
+      );
+      this.setState({
+        markedItemList,
+      });
+    }
+  };
+
+  getMarkedItemList = (itemList, userColorMap) => {
+    let markedItemList = Immutable.List();
+
+    itemList.forEach((currItem) => {
+      const item = currItem;
+      if (!item.id) {
+        item.id = getRandomId();
+      }
+      if (!item.tagText) {
+        item.tagText = '';
+      }
+      if (
+        item.user &&
+        userColorMap &&
+        userColorMap[item.user]
+      ) {
+        item.color = userColorMap[item.user];
+      } else {
+        item.color = 'green';
+      }
+
+      markedItemList = markedItemList.push(item);
+    });
+
+    return markedItemList;
+  };
 
   setImageAttributes = (attributes) => {
     if (attributes.height && attributes.width) {
@@ -37,12 +83,13 @@ class ImageMarker extends React.Component {
     if (this.state.imageReady) {
       svgEditor = (<SvgEditor
         key="svg-editor"
-        initialList={this.props.initialList}
         disabled={this.props.disabled}
         imageUrl={this.props.imageUrl}
         imageHeight={this.state.imageHeight}
         imageWidth={this.state.imageWidth}
-        onSave={this.props.actions.onSave}
+        userColorMap={this.state.userColorMap}
+        markedItemList={this.state.markedItemList}
+        onSaveMarkedItemList={this.props.onSaveMarkedItemList}
       />);
     }
     return (
@@ -63,24 +110,23 @@ const FullSizeContainer = styled.div`
 `;
 
 ImageMarker.defaultProps = {
-  initialList: [],
   disabled: false,
+  userColorMap: {},
+  rawItemList: [],
 };
 
 ImageMarker.propTypes = {
   imageUrl: PropTypes.string.isRequired,
-  initialList: PropTypes.arrayOf(
-    PropTypes.shape({
-      x: PropTypes.number.isRequired,
-      y: PropTypes.number.isRequired,
-      width: PropTypes.number.isRequired,
-      height: PropTypes.number.isRequired,
-    }),
-  ),
+  rawItemList: PropTypes.arrayOf(PropTypes.shape({
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    user: PropTypes.string,
+  })),
+  userColorMap: PropTypes.object,
   disabled: PropTypes.bool,
-  actions: PropTypes.shape({
-    onSave: PropTypes.func.isRequired,
-  }).isRequired,
+  onSaveMarkedItemList: PropTypes.func.isRequired,
 };
 
 export default ImageMarker;
